@@ -3,7 +3,8 @@ WoodCutterBuddy
 '''
 import numpy as np
 
-def woodcutterbuddy( counts, sizes, totalsize=8 ):
+
+def woodcutterbuddy(counts, sizes, totalsize=8):
     '''
     /Cutting Stock/
     Application of column generation to solve
@@ -16,7 +17,7 @@ def woodcutterbuddy( counts, sizes, totalsize=8 ):
     np.fill_diagonal(A, diag)
     ones_array = np.ones(pieces_types)
     for _ in xrange(100):
-        rhs = counts/np.sum(A,axis=1)
+        rhs = counts/np.sum(A, axis=1)
         y = np.linalg.solve(A.T, np.ones(pieces_types))
         ep = knapsack(zip(sizes, y), totalsize)
         if ep is None:
@@ -24,19 +25,20 @@ def woodcutterbuddy( counts, sizes, totalsize=8 ):
         else:
             p = np.linalg.solve(A, ep)
             min_coln = None
-            min_colv = (counts/np.sum(A,axis=0)).sum()
+            min_colv = (counts/np.sum(A, axis=0)).sum()
             for i in xrange(pieces_types):
-                if ep[i]!=0:
-                    temp=A.copy()
-                    temp[:,[i]]=np.array([ep]).T
+                if ep[i] != 0:
+                    temp = A.copy()
+                    temp[:, [i]] = np.array([ep]).T
                     colv = (counts/np.sum(temp, axis=0)).sum()
                     if (colv < min_colv):
                         min_colv = colv
                         min_coln = i
             if min_coln is not None:
-                A[:,[min_coln]]=np.array([ep]).T
+                A[:, [min_coln]] = np.array([ep]).T
             else:
                 return A, np.round(rhs)
+
 
 def knapsack(items, C):
     '''
@@ -55,7 +57,7 @@ def knapsack(items, C):
                 sack[c][1][i] += 1
 
     if (sum([(sack[C][1][i])*(items[i][0])
-            for i in xrange(len(items))])) <=C:
+            for i in xrange(len(items))])) <= C:
         return np.array(sack[C][1])
     else:
         return None
