@@ -8,12 +8,12 @@ import matplotlib.pyplot as plt
 class WoodCutterBuddy(object):
     '''
     Class to determine number of standard lumber pieces are required to
-    complete a project most efficiently given that the shape of the final
-    project materials are know.
+    complete a project most efficiently given that the shape of the
+    final project materials are know.
 
     It perform cutting-stock optimization for n wood pieces
-    each r inches long.  The class utilizes delayed column generation and
-    a revised simplex method with a modified integer knapsack solver.
+    each r inches long.  The class utilizes delayed column generation
+    and a revised simplex method with a modified knapsack solver.
     '''
     def __init__(self, plot=True):
         # list of the number of wood size pieces requested
@@ -27,14 +27,14 @@ class WoodCutterBuddy(object):
         # float of how precise should the knapsack algorithm be
         self.precision = None
         # bool indicating whether to plot or not
-        self.plot = True
+        self.plot = plot
         # numpy array with the final cut data
         self.final_cuts = None
         # ~formated string with the final cut data
         self.final_cuts_string = None
 
     def cutter(self, counts, sizes, error=0.05,
-                precision=1./1000., totalsize=8, maxsteps=100):
+                precision=1000., totalsize=8, maxsteps=100):
         '''
         /Cutting Stock/
         Application of column generation to solve
@@ -42,9 +42,9 @@ class WoodCutterBuddy(object):
         '''
         self.counts = counts
         self.sizes = sizes
-        self.error_sizes = sizes + error
+        self.error_sizes = sizes #+ error
         self.totalsize = totalsize
-        self.precision = 1./precision
+        self.precision = precision
 
         if max(self.error_sizes) > self.totalsize:
             return 'A cut of wood is too larger'
@@ -128,11 +128,12 @@ class WoodCutterBuddy(object):
         wood_pieces = wood_pieces[order]
         self.final_cuts_array = wood_pieces
         self.final_cuts_string = textout
-        print self.final_cuts_string
         #Will not show wood if too many pieces need to be rendered
         if self.plot:
             if len(wood_pieces) <= 6:
-                self.plot_wood(wood_pieces)
+                return self.plot_wood(wood_pieces)
+        else:
+             return self.final_cuts_string
 
     def _reset_woodpieces(self, wpstart):
         '''
@@ -198,11 +199,11 @@ class WoodCutterBuddy(object):
         ax1.spines['left'].set_linewidth(0)
         ax1.spines['right'].set_linewidth(0)
         plt.xlim(0, self.totalsize)
-        plt.show()
+        plt.savefig('woodbuddyschematic.png')
+        return self.final_cuts_string
 
-
-if __name__ == "__main__":
-    no = np.array([1,    1,   2,  1])
-    wf = np.array([4.5, 3.3, 1.1, 2.])
-    wcb = WoodCutterBuddy(plot=True)
-    print wcb.cutter(no, wf)
+# if __name__ == "__main__":
+#     no = np.array([2,    2, 2])
+#     wf = np.array([3.5, 1.,  2.5])
+#     wcb = WoodCutterBuddy(plot=True)
+#     print wcb.cutter(no, wf)
