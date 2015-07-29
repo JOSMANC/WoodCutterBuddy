@@ -6,19 +6,35 @@ import matplotlib.pyplot as plt
 
 
 class WoodCutterBuddy(object):
+    '''
+    Class to determine number of standard lumber pieces are required to
+    complete a project most efficiently given that the shape of the final
+    project materials are know.
 
+    It perform cutting-stock optimization for n wood pieces
+    each r inches long.  The class utilizes delayed column generation and
+    a revised simplex method with a modified integer knapsack solver.
+    '''
     def __init__(self, plot=True):
+        # list of the number of wood size pieces requested
         self.counts = None
+        # list of wood sizes request
         self.sizes = None
+        # list of wood sizes with a cut error added
         self.error_sizes = None
+        # int of total piece of stock lumber
         self.totalsize = None
+        # float of how precise should the knapsack algorithm be
         self.precision = None
+        # bool indicating whether to plot or not
         self.plot = True
+        # numpy array with the final cut data
         self.final_cuts = None
+        # ~formated string with the final cut data
         self.final_cuts_string = None
 
     def cutter(self, counts, sizes, error=0.05,
-                precision=1000, totalsize=8, maxsteps=100):
+                precision=1./1000., totalsize=8, maxsteps=100):
         '''
         /Cutting Stock/
         Application of column generation to solve
@@ -28,23 +44,28 @@ class WoodCutterBuddy(object):
         self.sizes = sizes
         self.error_sizes = sizes + error
         self.totalsize = totalsize
-        self.precision = precision
-        self.maxsteps = maxsteps
+        self.precision = 1./precision
 
         if max(self.error_sizes) > self.totalsize:
             return 'A cut of wood is too larger'
 
+        # total size of all lumber required
         pieces_total = np.sum(self.counts)
+        # number of unique pieces which are required
         pieces_types = len(self.sizes)
+        # initialize the patters A for cutting the stock
         diag = np.floor((totalsize)/(self.error_sizes).astype(float))
         A = np.zeros((pieces_types, pieces_types))
         np.fill_diagonal(A, diag)
         ones_array = np.ones(pieces_types)
-        for _ in xrange(maxsteps):
+        for _ in xrange(100):
+            # rhs for Ax = b
             rhs = self.counts/np.sum(A, axis=1)
+            # (sum^m)_i (yi * ai) > 1
             y = np.linalg.solve(A.T, np.ones(pieces_types))
+            # entering column to test
             ep = self.knapsack(zip(self.error_sizes, y), self.totalsize)
-            p = np.linalg.solve(A, ep)
+            # now test if it improves cost function
             min_coln = None
             min_colv = (self.counts/np.sum(A, axis=0)).sum()
             for lc in xrange(pieces_types):
@@ -55,8 +76,10 @@ class WoodCutterBuddy(object):
                     if (colv < min_colv):
                         min_colv = colv
                         min_coln = lc
+            # if it does update and repeat
             if min_coln is not None:
                 A[:, [min_coln]] = np.array([ep]).T
+            # if it does not exit
             else:
                 return self._display(A, rhs)
 
@@ -66,7 +89,8 @@ class WoodCutterBuddy(object):
         Application of a dynamic program to solve
         the optimial weight to cost ratio
         '''
-        items = [(int(item[0]*self.precision), item[1]) for item in items_us]
+        items = [(int(item[0]*self.precision), item[1])
+                 for item in items_us]
         C = int(C*self.precision)
         sack = [(0, [0]*len(items))]*(C+1)
         for i, item in enumerate(items):
@@ -78,13 +102,11 @@ class WoodCutterBuddy(object):
                     sack[c] = (sack_trial, sack_old[1][:])
                     sack[c][1][i] += 1
         return np.array(sack[C][1])
-        return np.array(sack[C][1])
 
     def _display(self, A, rhs):
         '''
-        /Knapsack/
-        Application of a dynamic program to solve
-        the optimial weight to cost ratio
+        /Format the cuts to be displayed/
+        Re-arrange the cutting matrix so it can be displayed
         '''
         rhs = (np.ceil(rhs)).astype(int)
         A = A.astype(int)
@@ -95,8 +117,6 @@ class WoodCutterBuddy(object):
                 ctype = []
                 for k, t in enumerate(A[:, i]):
                     ctype += [self.sizes[k]]*t
-                    #for _ in xrange(maxcuts-len(ctype)):
-                        #ctype.append(0.)
                 ctype = filter(lambda a: a != 0, ctype)
                 wood_pieces.append(ctype)
         wood_pieces = self._reset_woodpieces(wood_pieces)
@@ -108,12 +128,17 @@ class WoodCutterBuddy(object):
         wood_pieces = wood_pieces[order]
         self.final_cuts_array = wood_pieces
         self.final_cuts_string = textout
+        print self.final_cuts_string
+        #Will not show wood if too many pieces need to be rendered
         if self.plot:
             if len(wood_pieces) <= 6:
                 self.plot_wood(wood_pieces)
 
     def _reset_woodpieces(self, wpstart):
-
+        '''
+        /Help fill in zeros/
+        Make a zero-padded matrix
+        '''
         wpieces = 0
         for w in wpstart:
             if len(w) > wpieces:
@@ -126,6 +151,10 @@ class WoodCutterBuddy(object):
         return wp
 
     def plot_wood(self, wp):
+        '''
+        /Plot the cut wood/
+        Plot the wood and how it should be cut
+        '''
         wp = wp.T
         wpieces = wp.shape[1]
         plt.rc('font', family='sans-serif')
@@ -142,7 +171,7 @@ class WoodCutterBuddy(object):
                 l = l[:-2]
             labels.append(l)
 
-        fig = plt.figure(figsize=(15,4))
+        fig = plt.figure(figsize=(16,4))
         ax1 = plt.subplot(111)
 
         ind = np.arange(wpieces)
@@ -172,8 +201,8 @@ class WoodCutterBuddy(object):
         plt.show()
 
 
-# if __name__ == "__main__":
-#     no = np.array([1,    1,   2,  1])
-#     wf = np.array([4.5, 3.3, 1.1, 2.])
-#     wcb = WoodCutterBuddy(plot=True)
-#     print wcb.cutter(no, wf)
+if __name__ == "__main__":
+    no = np.array([1,    1,   2,  1])
+    wf = np.array([4.5, 3.3, 1.1, 2.])
+    wcb = WoodCutterBuddy(plot=True)
+    print wcb.cutter(no, wf)
