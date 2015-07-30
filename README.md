@@ -4,4 +4,4 @@ A python application to solve the optimial amount of raw material needed for a c
 
 The program takes a list of the number of the final material required in the form of their sizes and how many of that size are required. 
 
-![](https://github.com/JOSMANC/WoodCutterBuddy/image/woodbuddyschematic.png)
+![](https://github.com/JOSMANC/WoodCutterBuddy/blob/master/image/woodbuddyschematic.png)
