@@ -34,7 +34,7 @@ class WoodCutterBuddy(object):
         self.final_cuts_string = None
 
     def cutter(self, counts, sizes, error=0.05,
-                precision=10000., totalsize=8, maxsteps=100):
+                precision=20000., totalsize=7.8, maxsteps=100):
         '''
         /Cutting Stock/
         Application of column generation to solve
@@ -108,6 +108,8 @@ class WoodCutterBuddy(object):
         /Format the cuts to be displayed/
         Re-arrange the cutting matrix so it can be displayed
         '''
+        #print A
+        #print rhs
         rhs = (np.round(rhs)).astype(int)
         A = A.astype(int)
         wood_pieces = []
@@ -217,12 +219,12 @@ class WoodCutterBuddy(object):
         ax1.spines['bottom'].set_linewidth(0)
         ax1.spines['left'].set_linewidth(0)
         ax1.spines['right'].set_linewidth(0)
-        plt.xlim(0, self.totalsize)
+        plt.xlim(0, self.totalsize+.2)
         plt.savefig('woodbuddyschematic.png')
         return self.final_cuts_string
 
-if __name__ == "__main__":
-    no = np.array([1,   1])
-    wf = np.array([3.5, 4.5])
-    wcb = WoodCutterBuddy(plot=True)
-    print wcb.cutter(no, wf)
+#if __name__ == "__main__":
+    #no = np.array([1,   1,     2,  3])
+    #wf = np.array([3.5, 4.5, 1.4, 3.])
+    #wcb = WoodCutterBuddy(plot=True)
+    #print wcb.cutter(no, wf)
