@@ -10,3 +10,8 @@ requires packages `numpy`, `matplotlib` and `collections`
 
 ##Algorithm
 Details to come, but in the mean time please consult https://en.wikipedia.org/wiki/Cutting_stock_problem
+
+##Future Features
+- Deploy as online app
+- Flag non-optimal solution events
+- Account for non-optimal solution events
