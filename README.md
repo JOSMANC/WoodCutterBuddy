@@ -1,4 +1,4 @@
-#(WoodCutterBuddy)[https://github.com/JOSMANC/WoodCutterBuddy]
+#[WoodCutterBuddy](https://github.com/JOSMANC/WoodCutterBuddy)
 
 ##Purpose
 
