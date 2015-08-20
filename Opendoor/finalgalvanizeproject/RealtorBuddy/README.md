@@ -1,6 +1,7 @@
 # [RealtorBuddy](https://github.com/JOSMANC/RealtorBuddy)
 ***
 
+
 ## Prototype Project for Data Science Fellowship
 
 The current value of homes in the United States is 27.5 trillion dollars.
