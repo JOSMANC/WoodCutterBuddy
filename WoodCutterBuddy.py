@@ -238,8 +238,8 @@ class WoodCutterBuddy(object):
         plt.savefig('woodbuddyschematic.png')
         return self.final_cuts_string
 
-#if __name__ == "__main__":
-#    no = np.array([2,   3, 2, 3])
-#    wf = np.array([3.5, 4.5, 3.2, 4.])
-#    wcb = WoodCutterBuddy(plot=True)
-#    print wcb.cutter(no, wf)
+if __name__ == "__main__":
+   no = np.array([3,   3, 2, 3])
+   wf = np.array([3.5, 4.5, 3.2, 4.])
+   wcb = WoodCutterBuddy(plot=True)
+   print wcb.cutter(no, wf)
