@@ -1,10 +1,12 @@
 '''
 WoodCutterBuddy
 '''
-import numpy as np
-import matplotlib.pyplot as plt
 from collections import Counter
 from itertools import permutations
+
+import matplotlib.pyplot as plt
+import numpy as np
+
 
 class WoodCutterBuddy(object):
     '''
@@ -31,11 +33,11 @@ class WoodCutterBuddy(object):
         self.plot = plot
         # numpy array with the final cut data
         self.final_cuts = None
-        # ~formated string with the final cut data
+        # string with the final cut data
         self.final_cuts_string = None
 
     def cutter(self, counts, sizes, error=0.05,
-                precision=20000., totalsize=8., maxsteps=100):
+               precision=20000., totalsize=8., maxsteps=100):
         '''
         /Cutting Stock/
         Application of column generation to solve
@@ -74,7 +76,7 @@ class WoodCutterBuddy(object):
                     temp = A.copy()
                     temp[:, [lc]] = np.array([ep]).T
                     colv = (self.counts/np.sum(temp, axis=0)).sum()
-                    if (colv < min_colv):
+                    if colv < min_colv:
                         min_colv = colv
                         min_coln = lc
             # if it does update and repeat
@@ -99,7 +101,7 @@ class WoodCutterBuddy(object):
             for c in range(size, C+1):
                 sack_old = sack[c-int(size)]
                 sack_trial = sack_old[0] + value
-                if (sack_trial > sack[c][0]):
+                if sack_trial > sack[c][0]:
                     sack[c] = (sack_trial, sack_old[1][:])
                     sack[c][1][i] += 1
         return np.array(sack[C][1])
@@ -109,7 +111,7 @@ class WoodCutterBuddy(object):
         /Format the cuts to be displayed/
         Re-arrange the cutting matrix so it can be displayed
         '''
-        #print A
+        print A
         #print rhs
         rhs = (np.ceil(rhs)).astype(int)
         A = A.astype(int)
@@ -126,9 +128,9 @@ class WoodCutterBuddy(object):
         wood_pieces = np.round(wood_pieces, 3)
         order = wood_pieces.sum(axis=1).argsort()
         len_wp = len(wood_pieces)
-        best_wp = wood_pieces[order,:]
+        best_wp = wood_pieces[order, :]
         for combo in permutations(range(len_wp)):
-            temp_wp = self._filter_int_error(wood_pieces[combo,:])
+            temp_wp = self._filter_int_error(wood_pieces[combo, :])
             if len_wp > len(temp_wp):
                 best_wp = temp_wp
         wood_pieces = best_wp
@@ -139,7 +141,7 @@ class WoodCutterBuddy(object):
         #    wood_pieces = wood_piecesB
         textout = ''
         for i, wp in enumerate(wood_pieces):
-            textout += str(i+1)+':'+str(wp[wp!=0])+'\n'
+            textout += str(i+1) + ':' + str(wp[wp != 0]) + '\n'
         self.final_cuts_array = wood_pieces
         self.final_cuts_string = textout
 
@@ -148,7 +150,7 @@ class WoodCutterBuddy(object):
             if len(wood_pieces) <= 6:
                 return self.plot_wood(wood_pieces)
         else:
-             return self.final_cuts_string
+            return self.final_cuts_string
 
     def _filter_int_error(self, x):
         '''
@@ -159,9 +161,9 @@ class WoodCutterBuddy(object):
         xnew = []
         waste = []
         for j, twofour in enumerate(x):
-            newtwofour = x[0,:]*0
+            newtwofour = x[0, :]*0
             for i, chunk in enumerate(twofour):
-                if test[chunk]!=check[chunk]:
+                if test[chunk] != check[chunk]:
                     test[chunk] += 1
                     newtwofour[i] = chunk
             if sum(newtwofour) != 0:
@@ -169,7 +171,7 @@ class WoodCutterBuddy(object):
                 xnew.append(newtwofour)
         order = np.argsort(np.array(waste))
         xnew = np.array(xnew)
-        return xnew[order,:]
+        return xnew[order, :]
 
     def _reset_woodpieces(self, wpstart):
         '''
@@ -197,18 +199,18 @@ class WoodCutterBuddy(object):
         plt.rc('font', family='sans-serif')
         plt.rc('font', serif='Helvetica Neue')
         plt.rc('text', usetex='false')
-        plt.rcParams['figure.autolayout'] =  True
+        plt.rcParams['figure.autolayout'] = True
         labels = []
         for i in range(wpieces):
             l = ''
-            l += (''.join([str(w)+"', " for w in wp[:, i] if w!=0]))
-            if (self.totalsize-wp[:, i].sum()) > .1:
+            l += (''.join([str(w) + "', " for w in wp[:, i] if w != 0]))
+            if self.totalsize-wp[:, i].sum() > .1:
                 l += '+'+str(self.totalsize-wp[:, i].sum())+"'"
             else:
                 l = l[:-2]
             labels.append(l)
 
-        fig = plt.figure(figsize=(16,4))
+        fig = plt.figure(figsize=(16, 4))
         ax1 = plt.subplot(111)
 
         ind = np.arange(wpieces)
@@ -221,9 +223,9 @@ class WoodCutterBuddy(object):
         ax1.barh(ind, self.totalsize-wp.sum(axis=0),
                  1, left=bottom, color='#7d280b',
                  edgecolor='#f1d5b9', linewidth=5)
-        plt.yticks(ind+0.5, labels)
-        plt.xticks(np.arange(0,9),
-                   [str(i)+"'" for i in np.arange(0,9)])
+        plt.yticks(ind + 0.5, labels)
+        plt.xticks(np.arange(0, 9),
+                   [str(i)+"'" for i in np.arange(0, 9)])
         plt.tick_params(axis='x', length=0,
                         labelsize=20, labeltop='off',
                         labelbottom='on')
@@ -239,7 +241,7 @@ class WoodCutterBuddy(object):
         return self.final_cuts_string
 
 if __name__ == "__main__":
-   no = np.array([3,   3, 2, 3])
-   wf = np.array([3.5, 4.5, 3.2, 4.])
-   wcb = WoodCutterBuddy(plot=True)
-   print wcb.cutter(no, wf)
+    no = np.array([3, 3, 2, 3])
+    wf = np.array([3.5, 4.5, 3.2, 4.])
+    wcb = WoodCutterBuddy(plot=True)
+    print wcb.cutter(no, wf)
